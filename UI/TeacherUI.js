@@ -1,30 +1,29 @@
 import { AuthService } from '../services/AuthService.js';
 import { ExamService } from '../services/ExamService.js';
-import { Exam } from '../models/Exam.js'; // הוספנו את זה כדי שנוכל לייצר אובייקט מבחן חדש
+import { Exam } from '../models/Exam.js';
 
-// יצירת מופע של ה-Service (זה מה שיתקן את השגיאה!)
+// Initialize Service
 const examService = new ExamService();
 
-// 1. הגנה על הדף - לוודא שמי שנכנס לפה הוא באמת מורה מחובר
+// 1. Auth Protection
 const currentUser = AuthService.getLoggedInUser();
 if (!currentUser || currentUser.role !== 'teacher') {
     window.location.href = 'login.html';
 }
 
-// עדכון שם המורה בכותרת
+// Set Teacher Name
 document.getElementById('welcomeMessage').textContent = `ברוך/ה הבא/ה, ${currentUser.name} (מורה)`;
 
-// 2. כפתור התנתקות
+// 2. Logout Logic
 document.getElementById('logoutBtn').addEventListener('click', () => {
     AuthService.logout();
 });
 
-// 3. הצגת המבחנים הקיימים של המורה
+// 3. Render Exams List (with Export and Delete Buttons)
 function renderExamsList() {
     const examsList = document.getElementById('examsList');
     examsList.innerHTML = ''; 
     
-    // שימוש במופע (examService) ולא במחלקה (ExamService)
     const myExams = examService.getExamsByTeacher(currentUser.id);
     
     if (myExams.length === 0) {
@@ -34,18 +33,54 @@ function renderExamsList() {
 
     myExams.forEach(exam => {
         const li = document.createElement('li');
+        li.style.marginBottom = "15px";
+        li.style.padding = "10px";
+        li.style.borderBottom = "1px solid #ccc";
+
         li.innerHTML = `
             <strong>${exam.title}</strong> (קוד: ${exam.code}) - ${exam.durationMinutes} דקות
+            <br>
             <button onclick="window.location.href='exam-details.html?id=${exam.id}'">ערוך / הוסף שאלות</button>
         `;
+
+        // --- Export Button ---
+        const exportBtn = document.createElement('button');
+        exportBtn.textContent = 'ייצוא JSON';
+        exportBtn.style.marginRight = '10px';
+        exportBtn.onclick = () => {
+            const dataStr = JSON.stringify(exam);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${exam.title}.json`;
+            a.click();
+        };
+        li.appendChild(exportBtn);
+
+        // --- Delete Button ---
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'מחק מבחן';
+        deleteBtn.className = 'btn btn-danger';
+        deleteBtn.style.marginRight = '10px';
+        deleteBtn.style.backgroundColor = '#d9534f';
+        deleteBtn.style.color = 'white';
+        deleteBtn.onclick = () => {
+            if (confirm(`האם אתה בטוח שברצונך למחוק את המבחן "${exam.title}"?`)) {
+                examService.deleteExam(exam.id);
+                renderExamsList();
+            }
+        };
+        li.appendChild(deleteBtn);
+
         examsList.appendChild(li);
     });
 }
 
-// קריאה לפונקציה כשהדף עולה
+// Initial render
 renderExamsList();
 
-// 4. יצירת מבחן חדש
+// 4. Create Exam Logic
 document.getElementById('createExamForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const errorDisplay = document.getElementById('examError');
@@ -58,15 +93,13 @@ document.getElementById('createExamForm').addEventListener('submit', (e) => {
     const duration = document.getElementById('examDuration').value;
 
     try {
-        // בודקים אם הקוד כבר תפוס
         const allExams = examService.getAllExams();
         if (allExams.find(ex => ex.code === code)) {
             throw new Error("קוד המבחן כבר קיים במערכת, אנא בחר קוד אחר");
         }
 
-        // שימוש ב-OOP: קודם יוצרים אובייקט Exam, ואז שומרים אותו
         const newExam = new Exam(title, desc, category, code, parseInt(duration), currentUser.id);
-        examService.saveExam(newExam); // קורא לפונקציה שלך מ-ExamService
+        examService.saveExam(newExam);
         
         e.target.reset();
         renderExamsList();
@@ -74,4 +107,24 @@ document.getElementById('createExamForm').addEventListener('submit', (e) => {
     } catch (error) {
         errorDisplay.textContent = error.message;
     }
+});
+
+// 5. Import Logic (for JSON files)
+document.getElementById('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const importedData = JSON.parse(event.target.result);
+            // Ensure ExamService has saveImportedExam implemented as discussed
+            examService.saveImportedExam(importedData);
+            renderExamsList();
+            alert('המבחן יובא בהצלחה!');
+        } catch (err) {
+            alert('שגיאה בייבוא הקובץ: וודא שהוא בפורמט JSON תקין');
+        }
+    };
+    reader.readAsText(file);
 });

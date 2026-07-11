@@ -1,38 +1,38 @@
 import { ExamService } from '../services/ExamService.js';
 import { Question } from '../models/Question.js';
+import { ExamResult } from '../models/ExamResult.js';
+import StorageService from '../services/StorageService.js';
 
 const examService = new ExamService();
 
-// 1. קריאת מזהה המבחן מתוך הכתובת (למשל ?id=12345)
+// 1. Get Exam ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const examId = urlParams.get('id');
 
-// חזרה לדשבורד אם אין מזהה בכתובת
 if (!examId) {
-    alert('לא נמצא מזהה מבחן!');
+    alert('Exam ID not found!');
     window.location.href = 'teacher-dashboard.html';
 }
 
-// 2. שליפת המבחן המלא ממסד הנתונים
 const currentExam = examService.getExamById(examId);
 
 if (!currentExam) {
-    alert('המבחן לא נמצא!');
+    alert('Exam not found!');
     window.location.href = 'teacher-dashboard.html';
 }
 
-// 3. הצגת פרטי המבחן בראש הדף
+// 2. Render Exam Details
 document.getElementById('displayTitle').textContent = currentExam.title;
 const examInfo = document.getElementById('examInfo');
 if (examInfo) {
     examInfo.innerHTML = `
-        <p><strong>קוד מבחן לסטודנטים:</strong> ${currentExam.code}</p>
-        <p><strong>תיאור:</strong> ${currentExam.description}</p>
-        <p><strong>זמן:</strong> ${currentExam.durationMinutes} דקות</p>
+        <p><strong>Code:</strong> ${currentExam.code}</p>
+        <p><strong>Description:</strong> ${currentExam.description}</p>
+        <p><strong>Duration:</strong> ${currentExam.durationMinutes} minutes</p>
     `;
 }
 
-// 4. פונקציה שמציירת את השאלות הקיימות במבחן
+// 3. Render Questions
 function renderQuestions() {
     const list = document.getElementById('questionsList');
     const count = document.getElementById('questionCount');
@@ -42,31 +42,71 @@ function renderQuestions() {
 
     currentExam.questions.forEach((q, index) => {
         const li = document.createElement('li');
-        
-        // יצירת רשימת התשובות וצביעת התשובה הנכונה בירוק
         let answersHtml = '<ul>';
         q.answers.forEach((ans, i) => {
             const isCorrect = (i === parseInt(q.correctAnswerIndex));
             answersHtml += `<li style="${isCorrect ? 'color: green; font-weight: bold;' : ''}">
-                ${ans} ${isCorrect ? '(תשובה נכונה)' : ''}
+                ${ans} ${isCorrect ? '(Correct)' : ''}
             </li>`;
         });
         answersHtml += '</ul>';
 
-        li.innerHTML = `<strong>שאלה ${index + 1}: ${q.text}</strong>` + answersHtml;
+        li.innerHTML = `<strong>Question ${index + 1}: ${q.text}</strong>` + answersHtml;
         list.appendChild(li);
     });
 }
 
-// ציור ראשוני של השאלות הקיימות (אם יש)
-renderQuestions();
+// 4. Render Student Results
+function renderStudentResults(examId) {
+    const resultsTableBody = document.getElementById('resultsTableBody');
+    const allResultsRaw = StorageService.getResults(); 
+    const allUsers = StorageService.getUsers();
 
-// 5. טיפול בטופס הוספת שאלה חדשה
+    if (!allResultsRaw || allResultsRaw.length === 0) {
+        resultsTableBody.innerHTML = '<tr><td colspan="2">טרם בוצעו מבחנים</td></tr>';
+        return;
+    }
+
+    resultsTableBody.innerHTML = '';
+    
+    allResultsRaw
+        .filter(r => r.examId === examId)
+        .forEach(r => {
+            // ננסה להמיר לאובייקט
+            const result = new ExamResult(
+                r.studentId, r.examId, r.examTitle, r.score, r.totalQuestions, r.answers, r.id, r.createdAt
+            );
+
+            // בדיקת דיבאג - מה זה result?
+            console.log("Checking object:", result);
+
+            // מציאת שם הסטודנט
+            const student = allUsers.find(u => u.id === result.studentId);
+            const studentName = student ? student.name : 'משתמש לא ידוע';
+            
+            // חישוב ציון בטוח - אם המתודה לא קיימת, נחשב ידנית
+            const percent = (typeof result.getPercent === 'function') 
+                ? result.getPercent() 
+                : Math.round((result.score / result.totalQuestions) * 100);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${studentName}</td>
+                <td>${result.totalQuestions} / ${result.score} (${percent}%)</td>
+            `;
+            resultsTableBody.appendChild(row);
+        });
+}
+
+// Initial renders
+renderQuestions();
+renderStudentResults(examId);
+
+// 5. Add Question Logic
 const addQuestionForm = document.getElementById('addQuestionForm');
 if (addQuestionForm) {
     addQuestionForm.addEventListener('submit', (e) => {
         e.preventDefault();
-
         const text = document.getElementById('qText').value;
         const answers = [
             document.getElementById('ans0').value,
@@ -75,22 +115,17 @@ if (addQuestionForm) {
             document.getElementById('ans3').value
         ];
         
-        // בדיקה איזו תשובה סומנה כנכונה
         const correctRadio = document.querySelector('input[name="correct"]:checked');
         if (!correctRadio) {
-            alert('אנא סמן איזו תשובה היא הנכונה.');
+            alert('Please select the correct answer.');
             return;
         }
         const correctIndex = parseInt(correctRadio.value);
 
-        // שימוש במודל שניסחנו מראש ליצירת אובייקט שאלה
         const newQuestion = new Question(text, answers, correctIndex);
-        
-        // הוספה למבחן ושמירה
         currentExam.addQuestion(newQuestion);
         examService.updateExam(currentExam);
         
-        // רענון המסך וניקוי הטופס
         renderQuestions();
         e.target.reset(); 
     });

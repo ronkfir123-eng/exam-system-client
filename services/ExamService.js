@@ -64,7 +64,7 @@ export class ExamService {
     const exams = this.getAllExams();
     return exams.filter(exam => exam.teacherId === teacherId);
   }
-  
+
   updateExam(updatedExam) {
     const exams = this.getAllExams();
     const index = exams.findIndex(exam => exam.id === updatedExam.id);
@@ -75,6 +75,26 @@ export class ExamService {
     }
   }
 
+  saveImportedExam(examData) {
+    // יצירת אובייקט Exam חדש מהנתונים המיובאים
+    const importedExam = new Exam(
+        examData.title,
+        examData.description,
+        examData.category,
+        examData.code,
+        examData.durationMinutes,
+        examData.teacherId, // משאירים את ה-teacherId המקורי או מעדכנים למורה הנוכחי
+        examData.id,
+        examData.createdAt
+    );
+
+    // שחזור השאלות
+    if (examData.questions) {
+        importedExam.questions = examData.questions.map(q => new Question(q.text, q.answers, q.correctAnswerIndex, q.id));
+    }
+
+    this.saveExam(importedExam);
+}
   clearAllExams() {
     localStorage.removeItem(this.storageKey);
   }
