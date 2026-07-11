@@ -16,18 +16,26 @@ export class ExamService {
     const plainExams = JSON.parse(data);
 
     return plainExams.map(examData => {
-      const exam = new Exam(examData.title);
-      exam.id = examData.id;
-      exam.createdAt = examData.createdAt;
+      // 1. Pass ALL fields to the constructor based on our updated Exam.js
+      const exam = new Exam(
+        examData.title,
+        examData.description,
+        examData.category,
+        examData.code,
+        examData.durationMinutes,
+        examData.teacherId,
+        examData.id,
+        examData.createdAt
+      );
 
+      // 2. Rehydrate the questions (I simplified this slightly to match our updated Question.js)
       exam.questions = examData.questions.map(questionData => {
-        const question = new Question(
+        return new Question(
           questionData.text,
           questionData.answers,
-          questionData.correctAnswerIndex
+          questionData.correctAnswerIndex,
+          questionData.id // Pass the ID so it doesn't generate a new one
         );
-        question.id = questionData.id;
-        return question;
       });
 
       return exam;
@@ -49,6 +57,12 @@ export class ExamService {
   getExamById(examId) {
     const exams = this.getAllExams();
     return exams.find(exam => exam.id === examId);
+  }
+
+  // ADDED THIS: Crucial for the Teacher Dashboard
+  getExamsByTeacher(teacherId) {
+    const exams = this.getAllExams();
+    return exams.filter(exam => exam.teacherId === teacherId);
   }
 
   clearAllExams() {
