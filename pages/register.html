@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>הרשמה למערכת מבחנים</title>
+</head>
+<body>
+    <h1>הרשמה למערכת</h1>
+    <form id="registerForm">
+        <input type="text" id="regName" placeholder="שם מלא" required><br><br>
+        <input type="text" id="regTz" placeholder="תעודת זהות" required><br><br>
+        <input type="password" id="regPassword" placeholder="סיסמה" required><br><br>
+        
+        <select id="regRole">
+            <option value="student">סטודנט</option>
+            <option value="teacher">מורה</option>
+        </select><br><br>
+        
+        <button type="submit">הרשם</button>
+    </form>
+    
+    <p id="regError" style="color: red;"></p>
+    <a href="login.html">כבר יש לך חשבון? התחבר כאן</a>
+
+    <script type="module" src="../ui/AuthUI.js"></script>
+</body>
+</html>
