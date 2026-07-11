@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>דשבורד מורה</title>
+</head>
+<body>
+    <header>
+        <h1 id="welcomeMessage">ברוך הבא, מורה</h1>
+        <button id="logoutBtn">התנתק</button>
+    </header>
+
+    <main>
+        <section>
+            <h2>יצירת מבחן חדש</h2>
+            <form id="createExamForm">
+                <input type="text" id="examTitle" placeholder="שם המבחן" required><br><br>
+                <input type="text" id="examDesc" placeholder="תיאור קצר" required><br><br>
+                <input type="text" id="examCategory" placeholder="קטגוריה (למשל: מדעי המחשב)" required><br><br>
+                <input type="text" id="examCode" placeholder="קוד מבחן לסטודנטים (למשל C101)" required><br><br>
+                <input type="number" id="examDuration" placeholder="משך זמן (בדקות)" required><br><br>
+                <button type="submit">צור מבחן</button>
+            </form>
+            <p id="examError" style="color: red;"></p>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>המבחנים שלי</h2>
+            <ul id="examsList">
+                <!-- המבחנים יתווספו לכאן אוטומטית בעזרת JS -->
+            </ul>
+        </section>
+    </main>
+
+    <script type="module" src="../ui/TeacherUI.js"></script>
+</body>
+</html>

@@ -64,6 +64,16 @@ export class ExamService {
     const exams = this.getAllExams();
     return exams.filter(exam => exam.teacherId === teacherId);
   }
+  
+  updateExam(updatedExam) {
+    const exams = this.getAllExams();
+    const index = exams.findIndex(exam => exam.id === updatedExam.id);
+    
+    if (index !== -1) {
+      exams[index] = updatedExam; // Replace the old version with the updated one
+      localStorage.setItem(this.storageKey, JSON.stringify(exams));
+    }
+  }
 
   clearAllExams() {
     localStorage.removeItem(this.storageKey);

@@ -1,7 +1,7 @@
 import { Exam } from "./models/Exam.js";
 import { Question } from "./models/Question.js";
 import { ExamService } from "./services/ExamService.js";
-import { ExamUI } from "./ui/ExamUI.js";
+import { ExamUI } from "./ui/ExamRunnerUI.js";
 
 const examService = new ExamService();
 const examUI = new ExamUI(examService);

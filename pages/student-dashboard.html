@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>דשבורד סטודנט</title>
+</head>
+<body>
+    <header>
+        <h1 id="welcomeMessage">ברוך הבא, סטודנט</h1>
+        <button id="logoutBtn">התנתק</button>
+    </header>
+
+    <main>
+        <section>
+            <h2>חיפוש מבחן חדש</h2>
+            <p>מוכן למבחן הבא שלך?</p>
+            <!-- הקישור הזה יוביל לדף החיפוש שנבנה בשלב הבא -->
+            <button onclick="window.location.href='search-exam.html'">חפש מבחן לביצוע</button>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>היסטוריית הציונים שלי</h2>
+            <h3 id="avgScore">ממוצע ציונים: מחשב...</h3>
+            <ul id="historyList">
+                <!-- כאן יופיעו המבחנים שהסטודנט פתר -->
+            </ul>
+        </section>
+    </main>
+
+    <script type="module" src="../ui/StudentDashboardUI.js"></script>
+</body>
+</html>
