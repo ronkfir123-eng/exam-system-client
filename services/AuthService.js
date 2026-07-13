@@ -34,7 +34,7 @@ export class AuthService {
 
   static logout() {
     StorageService.clearCurrentUser();
-    window.location.href = "index.html";
+    window.location.href = "../index.html";
   }
 
   static getLoggedInUser() {
