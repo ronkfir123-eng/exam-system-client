@@ -1,0 +1,11 @@
+{
+    "id": "result-5555-xxxx-yyyy",
+    "studentId": "student-abc-123",
+    "examId": "exam-9876-abcd-efgh-1234",
+    "score": 1,
+    "totalQuestions": 2,
+    "answers": [
+        2,
+        0
+    ]
+}

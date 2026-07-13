@@ -118,6 +118,7 @@ document.getElementById('importFile').addEventListener('change', (e) => {
     reader.onload = (event) => {
         try {
             const importedData = JSON.parse(event.target.result);
+            importedData.teacherId = currentUser.id;
             // ensure ExamService has saveImportedExam implemented
             examService.saveImportedExam(importedData);
             renderExamsList();

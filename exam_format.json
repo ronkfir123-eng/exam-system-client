@@ -1,0 +1,33 @@
+{
+    "id": "01",
+    "title":"test",
+    "description": "regular math test",
+    "category": "math",
+    "code": "MATH101",
+    "durationMinutes": 60,
+    "teacherId": "123e4567-e89b-12d3-a456-426614174000",
+    "questions": [
+        {
+            "id": "q-1111",
+            "text": "כמה זה 5 + 7?",
+            "answers": [
+                "10",
+                "11",
+                "12",
+                "13"
+            ],
+            "correctAnswerIndex": 2
+        },
+        {
+            "id": "q-2222",
+            "text": "מהו השורש הריבועי של 64?",
+            "answers": [
+                "6",
+                "7",
+                "8",
+                "9"
+            ],
+            "correctAnswerIndex": 2
+        }
+    ]
+}
