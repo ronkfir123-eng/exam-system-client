@@ -5,7 +5,7 @@ import StorageService from '../services/StorageService.js';
 
 const examService = new ExamService();
 
-// 1. Get Exam ID from URL
+// get Exam ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const examId = urlParams.get('id');
 
@@ -21,7 +21,7 @@ if (!currentExam) {
     window.location.href = 'teacher-dashboard.html';
 }
 
-// 2. Render Exam Details
+// render Exam Details
 document.getElementById('displayTitle').textContent = currentExam.title;
 const examInfo = document.getElementById('examInfo');
 if (examInfo) {
@@ -32,7 +32,7 @@ if (examInfo) {
     `;
 }
 
-// 3. Render Questions
+// render Questions
 function renderQuestions() {
     const list = document.getElementById('questionsList');
     const count = document.getElementById('questionCount');
@@ -56,7 +56,7 @@ function renderQuestions() {
     });
 }
 
-// 4. Render Student Results
+// render Student Results
 function renderStudentResults(examId) {
     const resultsTableBody = document.getElementById('resultsTableBody');
     const allResultsRaw = StorageService.getResults(); 
@@ -72,19 +72,19 @@ function renderStudentResults(examId) {
     allResultsRaw
         .filter(r => r.examId === examId)
         .forEach(r => {
-            // ננסה להמיר לאובייקט
+            // create an ExamResult object from the raw data
             const result = new ExamResult(
                 r.studentId, r.examId, r.examTitle, r.score, r.totalQuestions, r.answers, r.id, r.createdAt
             );
 
-            // בדיקת דיבאג - מה זה result?
+            // log the result object to the console for debugging
             console.log("Checking object:", result);
 
-            // מציאת שם הסטודנט
+            // find the student name based on studentId
             const student = allUsers.find(u => u.id === result.studentId);
             const studentName = student ? student.name : 'משתמש לא ידוע';
             
-            // חישוב ציון בטוח - אם המתודה לא קיימת, נחשב ידנית
+            // calculate the percentage score
             const percent = (typeof result.getPercent === 'function') 
                 ? result.getPercent() 
                 : Math.round((result.score / result.totalQuestions) * 100);
@@ -98,11 +98,11 @@ function renderStudentResults(examId) {
         });
 }
 
-// Initial renders
+// initial renders
 renderQuestions();
 renderStudentResults(examId);
 
-// 5. Add Question Logic
+// add question logic
 const addQuestionForm = document.getElementById('addQuestionForm');
 if (addQuestionForm) {
     addQuestionForm.addEventListener('submit', (e) => {

@@ -2,28 +2,28 @@ import { AuthService } from '../services/AuthService.js';
 import StorageService from '../services/StorageService.js';
 import { ExamResult } from '../models/ExamResult.js';
 
-// 1. אבטחה: נוודא שרק סטודנט יכול לגשת לכאן
+// only allow students to access this page
 const currentUser = AuthService.getLoggedInUser();
 if (!currentUser || currentUser.role !== 'student') {
     window.location.href = 'login.html';
 }
 
-// 2. הצגת שם הסטודנט והתנתקות
+// show student name and role
 document.getElementById('welcomeMessage').textContent = `שלום, ${currentUser.name} (סטודנט/ית)`;
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
     AuthService.logout();
 });
 
-// 3. טעינת היסטוריית המבחנים
+// load the student's exam history and average score
 function loadDashboard() {
     const historyList = document.getElementById('historyList');
     const avgDisplay = document.getElementById('avgScore');
 
-    // שליפת כל התוצאות מה-Storage
+    // get all exam results from storage
     const allResultsRaw = StorageService.getResults();
     
-    // סינון רק של התוצאות של הסטודנט הנוכחי + יצירת אובייקטי ExamResult אמיתיים (Rehydration)
+    // filter results for the current student and create ExamResult instances
     const myResults = allResultsRaw
         .filter(result => result.studentId === currentUser.id)
         .map(resultData => new ExamResult(
@@ -37,7 +37,7 @@ function loadDashboard() {
             resultData.createdAt
         ));
 
-    // אם הסטודנט עדיין לא עשה מבחנים
+    // no tests taken yet
     if (myResults.length === 0) {
         historyList.innerHTML = '<li>טרם ביצעת מבחנים במערכת.</li>';
         avgDisplay.textContent = 'ממוצע ציונים: אין נתונים';
@@ -45,9 +45,9 @@ function loadDashboard() {
     }
 
     let totalPercent = 0;
-    historyList.innerHTML = ''; // ניקוי הרשימה
+    historyList.innerHTML = ''; // clear previous history
 
-    // מעבר על כל תוצאה והצגתה
+    // render each result
     myResults.forEach(result => {
         const percent = result.getPercent();
         totalPercent += percent;
@@ -66,10 +66,10 @@ function loadDashboard() {
         historyList.appendChild(li);
     });
 
-    // חישוב והצגת הממוצע
+    // calculate and display average score
     const avg = Math.round(totalPercent / myResults.length);
     avgDisplay.textContent = `ממוצע ציונים: ${avg}%`;
 }
 
-// הפעלת הפונקציה כשהדף עולה
+// load the dashboard on page reload
 loadDashboard();

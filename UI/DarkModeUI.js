@@ -1,16 +1,16 @@
-// יצירת הכפתור באופן דינמי והוספתו לכל דף
+// dynamically create a button for toggling dark mode
 const toggleBtn = document.createElement('button');
 toggleBtn.id = 'themeToggleBtn';
 toggleBtn.textContent = '🌙 מצב כהה';
 document.body.appendChild(toggleBtn);
 
-// בדיקה אם המשתמש כבר בחר מצב כהה בעבר
+// check localStorage for theme preference and apply it
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
     toggleBtn.textContent = '☀️ מצב בהיר';
 }
 
-// מאזין ללחיצה על הכפתור
+// add event listener to toggle dark mode
 toggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
     

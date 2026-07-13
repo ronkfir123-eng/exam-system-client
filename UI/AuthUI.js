@@ -1,12 +1,12 @@
 import { AuthService } from '../services/AuthService.js';
 
-// Get DOM elements
+// get dom elements
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const loginError = document.getElementById('loginError');
 const regError = document.getElementById('regError');
 
-// Helper function to handle redirects based on role
+// redirect based on role
 function redirectBasedOnRole(user) {
     if (user.role === 'teacher') {
         window.location.href = 'teacher-dashboard.html';
@@ -20,19 +20,19 @@ function redirectBasedOnRole(user) {
 // -----------------------------------------
 if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // Prevent the page from refreshing
+        e.preventDefault(); // prevent the page from refreshing
 
         const tz = document.getElementById('loginTz').value;
         const password = document.getElementById('loginPassword').value;
 
         try {
-            // Attempt to log in
+            // attempt to log in
             const user = AuthService.login(tz, password);
             
-            // If successful, redirect
+            // if successful then redirect
             redirectBasedOnRole(user);
         } catch (error) {
-            // If there's an error (e.g., wrong password), show it on screen
+            // if there's an error show it on screen
             loginError.textContent = error.message;
         }
     });
@@ -51,16 +51,16 @@ if (registerForm) {
         const role = document.getElementById('regRole').value;
 
         try {
-            // Attempt to register
+            // attempt to register
             AuthService.register(name, tz, password, role);
             
-            // Auto-login the user right after successful registration
+            // auto login the user after successful registration
             const user = AuthService.login(tz, password);
             
-            // Redirect
+            // redirect
             redirectBasedOnRole(user);
         } catch (error) {
-            // If tz already exists, show error
+            // If tz already exists show error
             regError.textContent = error.message;
         }
     });

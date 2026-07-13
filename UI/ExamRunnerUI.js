@@ -15,7 +15,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const examId = urlParams.get('id');
 const exam = examService.getExamById(examId);
 
-let timerInterval; // משתנה גלובלי לשמירת הטיימר
+let timerInterval; // global var for the timer 
 
 function renderExamRunner(exam) {
     if (!exam) {
@@ -27,7 +27,7 @@ function renderExamRunner(exam) {
         return;
     }
 
-    // הוספת תצוגת הטיימר
+    // render the exam title and instructions
     examRunnerElement.innerHTML = `
       <h2>${exam.title}</h2>
       <h4 id="timerDisplay" style="color: #d9534f; font-weight: bold;">מחשב זמן...</h4>
@@ -35,11 +35,11 @@ function renderExamRunner(exam) {
       <hr>
     `;
 
-    // ציור השאלות
+    // render each question with its answers
     exam.questions.forEach((question, questionIndex) => {
         const questionDiv = document.createElement("div");
         questionDiv.className = "question-box";
-        questionDiv.id = `qbox-${questionIndex}`; // מזהה ייחודי כדי שנוכל לצבוע אותן אחר כך
+        questionDiv.id = `qbox-${questionIndex}`; // identifier for the question box
         questionDiv.innerHTML = `
         <h5>שאלה ${questionIndex + 1}: ${question.text}</h5>
         ${question.answers.map((answer, answerIndex) => `
@@ -58,14 +58,14 @@ function renderExamRunner(exam) {
     submitButton.textContent = "סיים ושלח מבחן";
     
     submitButton.addEventListener("click", () => {
-        clearInterval(timerInterval); // עצירת הטיימר בלחיצה
+        clearInterval(timerInterval); // stop timer when submitting
         checkExam(exam, submitButton);
     });
 
     examRunnerElement.appendChild(submitButton);
 
-    // --- לוגיקת הטיימר ---
-    let timeLeft = exam.durationMinutes * 60; // המרה לשניות
+    // --- Timer Logic ---
+    let timeLeft = exam.durationMinutes * 60; // convert minutes to seconds
     const timerDisplay = document.getElementById("timerDisplay");
 
     timerInterval = setInterval(() => {
@@ -102,10 +102,10 @@ function checkExam(exam, submitButton) {
         }
         studentAnswers.push(userAnswerIndex);
 
-        // --- בונוס: צביעת התשובות (Review) ---
+         // highlight correct and incorrect answers
         labels.forEach((label, i) => {
             const input = label.querySelector('input');
-            input.disabled = true; // נעילת השאלות לאחר הגשה
+            input.disabled = true; // lock buttons after submission
 
             if (i === parseInt(question.correctAnswerIndex)) {
                 label.style.color = "green";

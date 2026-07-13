@@ -2,24 +2,24 @@ import { AuthService } from '../services/AuthService.js';
 import { ExamService } from '../services/ExamService.js';
 import { Exam } from '../models/Exam.js';
 
-// Initialize Service
+// initialize service
 const examService = new ExamService();
 
-// 1. Auth Protection
+// auth protection
 const currentUser = AuthService.getLoggedInUser();
 if (!currentUser || currentUser.role !== 'teacher') {
     window.location.href = 'login.html';
 }
 
-// Set Teacher Name
+// set teacher name
 document.getElementById('welcomeMessage').textContent = `ברוך/ה הבא/ה, ${currentUser.name} (מורה)`;
 
-// 2. Logout Logic
+// logout
 document.getElementById('logoutBtn').addEventListener('click', () => {
     AuthService.logout();
 });
 
-// 3. Render Exams List (with Export and Delete Buttons)
+// render exams list
 function renderExamsList() {
     const examsList = document.getElementById('examsList');
     examsList.innerHTML = ''; 
@@ -43,7 +43,7 @@ function renderExamsList() {
             <button onclick="window.location.href='exam-details.html?id=${exam.id}'">ערוך / הוסף שאלות</button>
         `;
 
-        // --- Export Button ---
+        // export button
         const exportBtn = document.createElement('button');
         exportBtn.textContent = 'ייצוא JSON';
         exportBtn.style.marginRight = '10px';
@@ -58,7 +58,7 @@ function renderExamsList() {
         };
         li.appendChild(exportBtn);
 
-        // --- Delete Button ---
+        // delete button
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'מחק מבחן';
         deleteBtn.className = 'btn btn-danger';
@@ -77,10 +77,10 @@ function renderExamsList() {
     });
 }
 
-// Initial render
+// initial render
 renderExamsList();
 
-// 4. Create Exam Logic
+// create exam logic
 document.getElementById('createExamForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const errorDisplay = document.getElementById('examError');
@@ -109,7 +109,7 @@ document.getElementById('createExamForm').addEventListener('submit', (e) => {
     }
 });
 
-// 5. Import Logic (for JSON files)
+// import logic for JSON files
 document.getElementById('importFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -118,7 +118,7 @@ document.getElementById('importFile').addEventListener('change', (e) => {
     reader.onload = (event) => {
         try {
             const importedData = JSON.parse(event.target.result);
-            // Ensure ExamService has saveImportedExam implemented as discussed
+            // ensure ExamService has saveImportedExam implemented
             examService.saveImportedExam(importedData);
             renderExamsList();
             alert('המבחן יובא בהצלחה!');

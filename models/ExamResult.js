@@ -4,17 +4,17 @@ export class ExamResult {
     this.id = id || crypto.randomUUID();
     this.createdAt = createdAt || new Date().toISOString();
     
-    // Core data
-    this.studentId = studentId; // Crucial for filtering the dashboard
+    // core data
+    this.studentId = studentId;
     this.examId = examId;
     this.examTitle = examTitle;
     this.score = score;
     this.totalQuestions = totalQuestions;
-    this.answers = answers; // Array of the user's chosen options
+    this.answers = answers;
   }
 
   getPercent() {
-    if (this.totalQuestions === 0) return 0; // Safety check
+    if (this.totalQuestions === 0) return 0;
     return Math.round((this.score / this.totalQuestions) * 100);
   }
 

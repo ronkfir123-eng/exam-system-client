@@ -1,43 +1,42 @@
 import { AuthService } from '../services/AuthService.js';
 import { ExamService } from '../services/ExamService.js';
 
-// 1. הגנה על הדף - רק סטודנט מחובר יכול לחפש מבחנים
+// only allow students to access this page
 const currentUser = AuthService.getLoggedInUser();
 if (!currentUser || currentUser.role !== 'student') {
     window.location.href = 'login.html';
 }
 
 const examService = new ExamService();
-// מושכים את כל המבחנים מראש כדי שנוכל לחפש בתוכם
+// get all exams from storage
 const allExams = examService.getAllExams(); 
 
 const searchForm = document.getElementById('searchForm');
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 
-// 2. פונקציית החיפוש שמופעלת בעת שליחת הטופס
+// render all exams initially
 searchForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    // לוקחים את הטקסט, מנקים רווחים והופכים לאותיות קטנות (באנגלית) כדי שהחיפוש לא יהיה רגיש לאותיות גדולות/קטנות
     const query = searchInput.value.trim().toLowerCase();
     
-    searchResults.innerHTML = ''; // מנקים תוצאות קודמות
+    searchResults.innerHTML = ''; // clear previous results
 
-    // סינון המערך - נבדוק אם המחרוזת נמצאת בשם המבחן או שווה לקוד שלו
+    // filter exams based on title or code
     const filteredExams = allExams.filter(exam => {
         const titleMatch = exam.title.toLowerCase().includes(query);
         const codeMatch = exam.code.toLowerCase() === query;
         return titleMatch || codeMatch;
     });
 
-    // אם לא נמצאו תוצאות
+    // no exams found
     if (filteredExams.length === 0) {
         searchResults.innerHTML = '<li>לא נמצאו מבחנים התואמים לחיפוש שלך.</li>';
         return;
     }
 
-    // אם נמצאו מבחנים, נצייר אותם על המסך
+    // render the filtered exams
     filteredExams.forEach(exam => {
         const li = document.createElement('li');
         li.innerHTML = `

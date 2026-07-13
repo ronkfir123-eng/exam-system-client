@@ -16,7 +16,7 @@ export class ExamService {
     const plainExams = JSON.parse(data);
 
     return plainExams.map(examData => {
-      // 1. Pass ALL fields to the constructor based on our updated Exam.js
+      // pass all fields to the constructor based on Exam.js
       const exam = new Exam(
         examData.title,
         examData.description,
@@ -28,13 +28,12 @@ export class ExamService {
         examData.createdAt
       );
 
-      // 2. Rehydrate the questions (I simplified this slightly to match our updated Question.js)
       exam.questions = examData.questions.map(questionData => {
         return new Question(
           questionData.text,
           questionData.answers,
           questionData.correctAnswerIndex,
-          questionData.id // Pass the ID so it doesn't generate a new one
+          questionData.id // pass the id so it doesn't generate a new one
         );
       });
 
@@ -59,7 +58,6 @@ export class ExamService {
     return exams.find(exam => exam.id === examId);
   }
 
-  // ADDED THIS: Crucial for the Teacher Dashboard
   getExamsByTeacher(teacherId) {
     const exams = this.getAllExams();
     return exams.filter(exam => exam.teacherId === teacherId);
@@ -70,25 +68,25 @@ export class ExamService {
     const index = exams.findIndex(exam => exam.id === updatedExam.id);
     
     if (index !== -1) {
-      exams[index] = updatedExam; // Replace the old version with the updated one
+      exams[index] = updatedExam; // replace the old version with the updated one
       localStorage.setItem(this.storageKey, JSON.stringify(exams));
     }
   }
 
   saveImportedExam(examData) {
-    // יצירת אובייקט Exam חדש מהנתונים המיובאים
+    // create a new Exam instance from the imported data
     const importedExam = new Exam(
         examData.title,
         examData.description,
         examData.category,
         examData.code,
         examData.durationMinutes,
-        examData.teacherId, // משאירים את ה-teacherId המקורי או מעדכנים למורה הנוכחי
+        examData.teacherId, // keep the original teacherId
         examData.id,
         examData.createdAt
     );
 
-    // שחזור השאלות
+    // get questions from imported data
     if (examData.questions) {
         importedExam.questions = examData.questions.map(q => new Question(q.text, q.answers, q.correctAnswerIndex, q.id));
     }
